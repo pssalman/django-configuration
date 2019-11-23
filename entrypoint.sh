@@ -10,9 +10,9 @@ python manage.py migrate --no-input
 python manage.py create_super
 python manage.py collectstatic --no-input
 
-#python manage.py makemessages -l ar
-#python manage.py makemessages -l fr
-#python manage.py makemessages -l de
+python manage.py makemessages -l ar
+python manage.py makemessages -l fr
+python manage.py makemessages -l de
 python manage.py compilemessages
 
 #from django.utils import translation
@@ -29,6 +29,7 @@ python manage.py compilemessages
 #response.set_cookie(settings.LANGUAGE_COOKIE_NAME, user_language)
 
 # Prepare log files and start outputting logs to stdout
+echo Preparing log files
 touch ./logs/gunicorn/gunicorn-${ENVIRONMENT}.log
 touch ./logs/gunicorn/gunicorn-access-${ENVIRONMENT}.log
 tail -n 0 -f ./logs/gunicorn/gunicorn*.log &

@@ -5,6 +5,7 @@ INTERNAL_IPS = [
 ]
 
 LOCAL_APPS = [
+    'rosetta',
     'debug_toolbar', 
     'django_extensions'
 ]

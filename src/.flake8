@@ -1,0 +1,15 @@
+[flake8]
+#ignore = E226,E302,E41,E702,E731
+max-line-length = 110
+exclude =
+  migrations
+  __pycache__,
+  manage.py,
+  settings.py,
+  base.py,
+  production.py,
+  development.py,
+  staging.py
+  original.py,
+  wsgi.py,
+  urls.py
