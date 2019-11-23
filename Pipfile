@@ -15,6 +15,11 @@ python-decouple = "*"
 gunicorn = "*"
 django-compressor = "*"
 django-cors-headers = "*"
+django-celery-beat = "*"
+django-celery-results = "*"
+celery = "*"
+requests = "*"
+django-log-request-id = "*"
 
 [requires]
 python_version = "3.6"

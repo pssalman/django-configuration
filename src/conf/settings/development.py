@@ -48,3 +48,5 @@ LOGGING = {
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
+
+CELERY_TASK_EAGER_PROPAGATES = True
