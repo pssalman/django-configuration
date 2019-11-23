@@ -35,3 +35,9 @@ DATABASES = {
         'ATOMIC_REQUESTS': env('DB_ATOMIC_REQUESTS', cast=bool),
     }
 }
+
+CORS_ALLOW_CREDENTIALS = env('APP_CORS_ALLOW_CREDENTIALS', cast=bool)
+CORS_ORIGIN_ALLOW_ALL = env('APP_CORS_ORIGIN_ALLOW_ALL', cast=bool)
+# CORS_URLS_REGEX = r'^/api.*$'
+# CORS_ORIGIN_WHITELIST = ('*',)
+CORS_ORIGIN_WHITELIST = env('APP_CORS_ORIGIN_WHITELIST', cast=Csv(post_process=tuple))

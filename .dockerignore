@@ -6,6 +6,9 @@
 .cache
 .tox
 .tx
+.flake8
+.Dockerfile.single
+.gitkeep
 README.rst
 README.md
 __pycache__

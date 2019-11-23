@@ -30,6 +30,9 @@ DATABASES = {
     }
 }
 
+CORS_ALLOW_CREDENTIALS = env('APP_CORS_ALLOW_CREDENTIALS', cast=bool)
+CORS_ORIGIN_ALLOW_ALL = env('APP_CORS_ORIGIN_ALLOW_ALL', cast=bool)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -49,4 +52,9 @@ LOGGING = {
     "root": {"level": "INFO", "handlers": ["console"]},
 }
 
+CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
+
+ROSETTA_SHOW_AT_ADMIN_PANEL = True
+ROSETTA_ENABLE_TRANSLATION_SUGGESTIONS = True
+YANDEX_TRANSLATE_KEY = env('APP_YANDEX_TRANSLATE_KEY')

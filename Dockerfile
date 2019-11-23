@@ -26,7 +26,11 @@ RUN apk add --no-cache --virtual .build-deps \
       postgresql-dev \
       linux-headers \
       libc-dev \
-      fortify-headers
+      libffi-dev \
+      fortify-headers \
+      jpeg-dev \
+      zlib-dev \
+      musl-dev
 
 # Install dependencies & Virtual Environment Package Management
 
@@ -56,30 +60,30 @@ LABEL version="1.0" \
 
 # Available Options - dev and prod
 ARG ENVIRONMENT
-ENV ENVIRONMENT ${ENVIRONMENT}
 ARG PORT=8000
-ENV PORT ${PORT}
 ARG BUILD_NUMBER
 ARG COMMIT_HASH
 ARG PROJECT_NAME
-ENV PROJECT_NAME ${PROJECT_NAME}
-ENV BUILD_NUMBER ${BUILD_NUMBER}
-ENV COMMIT_HASH ${COMMIT_HASH}
+ARG ADMIN_PASSWORD
+
+ENV ENVIRONMENT=${ENVIRONMENT} \
+    PORT=${PORT} \
+    PROJECT_NAME=${PROJECT_NAME} \
+    BUIL1D_NUMBER=${BUILD_NUMBER} \
+    COMMIT_HASH=${COMMIT_HASH}
 
 # Set environment varibles
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV PYROOTBUILD /pyroot
-ENV PYROOT /app/pyroot
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYROOTBUILD=/pyroot \
+    PYROOT=/app/pyroot
 ENV PATH $PYROOT/bin:$PATH
-
 ENV PYTHONPATH $PYROOT/lib/python3.6:$PATH
 ENV PATH $PYROOT/lib/python3.6/site-packages:$PATH
 
 # This is crucial for pkg_resources to work
 ENV PYTHONUSERBASE $PYROOT
 
-ARG ADMIN_PASSWORD
 ENV ADMIN_PASSWORD ${ADMIN_PASSWORD}
 
 # Create user to run app
