@@ -11,19 +11,53 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import socket
+
+from decouple import Config, RepositoryEnv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DJANGO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(DJANGO_ROOT)
+SITE_NAME = os.path.basename(DJANGO_ROOT)
+PUBLIC_ROOT = os.path.join(PROJECT_ROOT, 'public')
+RUN_ROOT = os.path.join(PROJECT_ROOT, 'run')
+LOGGING_ROOT = os.path.join(PROJECT_ROOT, 'logs')
+LOCALE_ROOT = os.path.join(PROJECT_ROOT, 'locale')
+TEMPLATES_ROOT = os.path.join(PROJECT_ROOT, 'templates')
 
+DOTENV_ROOT = os.path.join(RUN_ROOT, '.envs')
+DOTENV_FILE = os.path.join(DOTENV_ROOT, os.environ.get('ENVIRONMENT'), '.env')
+env = Config(RepositoryEnv(DOTENV_FILE))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'i4as3bpv*s+@vj39ddcjk&d-bti&^#1*x-utpz_e$my*ntci7@'
+SECRET_FILE = os.path.normpath(os.path.join(
+    RUN_ROOT,
+    f"SECRET_FILE_{os.environ.get('ENVIRONMENT').upper()}.key"))
+
+try:
+    SECRET_KEY = open(SECRET_FILE).read().strip()
+except IOError:
+    try:
+        from django.utils.crypto import get_random_string
+        CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789!$%&()=+-_'
+        SECRET_KEY = get_random_string(50, CHARS)
+        with open(SECRET_FILE, 'w') as f:
+            f.write(SECRET_KEY)
+    except IOError:
+        raise Exception(f'Could not open {SECRET_FILE} for writing!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('APP_DEBUG')
+
+
+ADMINS = [
+    ("pssalman", "anton.salman@gmail.com"),
+]
+
+MANAGERS = ADMINS
 
 ALLOWED_HOSTS = []
 
@@ -35,13 +69,20 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
+    'django.contrib.admindocs',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -49,12 +90,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'conf.urls'
+ROOT_URLCONF = f'{SITE_NAME}.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_ROOT],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,24 +103,23 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
+                'django.template.context_processors.tz',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'conf.wsgi.application'
+WSGI_APPLICATION = f'{SITE_NAME}.wsgi.application'
 
+LOCAL_IP = str(socket.gethostbyname(socket.gethostname()))
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+print('hostname: ' + socket.gethostname())
+print('hostbyip: ' + LOCAL_IP)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
+APPEND_SLASH = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -103,18 +143,70 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('APP_LANGUAGE_CODE')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('APP_TIME_ZONE')
 
-USE_I18N = True
+USE_I18N = env('APP_USE_I18N')
 
-USE_L10N = True
+USE_L10N = env('APP_USE_L10N')
 
-USE_TZ = True
+USE_TZ = env('APP_USE_TZ')
 
+gettext_noop = lambda s: s
+
+LANGUAGES = [
+    ('ar', gettext_noop('Arabic')),
+    ('ca', gettext_noop('Catalan')),
+    ('cs', gettext_noop('Czech')),
+    ('da', gettext_noop('Danish')),
+    ('de', gettext_noop('German')),
+    ('en-us', gettext_noop('English')),
+    ('el', gettext_noop('Greek')),
+    ('es', gettext_noop('Spanish')),
+    ('fi', gettext_noop('Finnish')),
+    ('fr', gettext_noop('French')),
+    ('he', gettext_noop('Hebrew')),
+    ('it', gettext_noop('Italian')),
+    ('ko', gettext_noop('Korean')),
+    ('nl', gettext_noop('Dutch')),
+    ('pl', gettext_noop('Polish')),
+    ('pt', gettext_noop('Portuguese')),
+    ('pt-br', gettext_noop('Brazilian Portuguese')),
+    ('ro', gettext_noop('Romanian')),
+    ('ru', gettext_noop('Russian')),
+    ('sk', gettext_noop('Slovak')),
+    ('uk', gettext_noop('Ukrainian')),
+    ('zh-cn', gettext_noop('Simplified Chinese')),
+]
+
+LANGUAGES_BIDI = ['he', 'ar']
+
+# Tell Django where the project's translation files should be.
+LOCALE_PATHS = (
+    LOCALE_ROOT,
+)
+
+SITE_ID = 1
+
+PREPEND_WWW = env('APP_PREPEND_WWW')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+]
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PUBLIC_ROOT, 'static')
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_ROOT, 'static'),
+]
+
+COMPRESS_ROOT = os.path.join(PUBLIC_ROOT, 'compress')
+COMPRESS_ENABLED = True
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
