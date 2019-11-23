@@ -37,6 +37,7 @@ echo Starting Gunicorn.
 
 exec gunicorn conf.wsgi:application \
     --name webapp_django \
+    --preload \
     --bind 0.0.0.0:${PORT:-8000} \
     --workers 3 \
     --log-level=info \

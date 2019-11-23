@@ -15,15 +15,6 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    # This allows easy placement of apps within the interior
-    # src directory.
-    CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(os.path.normpath(os.path.join(CURRENT_PATH, 'apps')))
-    sys.path.append(os.path.normpath(
-        os.path.join(CURRENT_PATH, 'apps', 'shared_apps')))
-    # Libraries shared for all projects in the format of templatetags
-    # and Abstract models
-    sys.path.append(os.path.normpath(os.path.join(CURRENT_PATH, 'libs')))
     execute_from_command_line(sys.argv)
 
 

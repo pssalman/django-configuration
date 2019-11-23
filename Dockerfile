@@ -41,7 +41,7 @@ COPY ./Pipfile* ./
 
 #RUN pipenv install --deploy --system --dev
 #RUN pipenv install --deploy --system --clear
-RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install --system --deploy
+RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install --system --deploy --dev
 
 RUN apk del .build-deps \
       && rm -rf /root/.cache/pip/*

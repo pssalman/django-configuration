@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import sys
 import os
 import socket
 
-from decouple import Config, RepositoryEnv
+from decouple import Config, RepositoryEnv, Csv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 DJANGO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,8 +27,17 @@ LOCALE_ROOT = os.path.join(PROJECT_ROOT, 'locale')
 TEMPLATES_ROOT = os.path.join(PROJECT_ROOT, 'templates')
 
 DOTENV_ROOT = os.path.join(RUN_ROOT, '.envs')
-DOTENV_FILE = os.path.join(DOTENV_ROOT, os.environ.get('ENVIRONMENT'), '.env')
+DOTENV_FILE = os.path.join(DOTENV_ROOT, f".{os.environ.get('ENVIRONMENT')}", '.env')
 env = Config(RepositoryEnv(DOTENV_FILE))
+
+# This allows easy placement of apps within the interior
+# src directory.
+sys.path.append(os.path.normpath(os.path.join(PROJECT_ROOT, 'apps')))
+sys.path.append(os.path.normpath(
+    os.path.join(PROJECT_ROOT, 'apps', 'shared_apps')))
+# Libraries shared for all projects in the format of templatetags
+# and Abstract models
+sys.path.append(os.path.normpath(os.path.join(PROJECT_ROOT, 'libs')))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -50,7 +60,7 @@ except IOError:
         raise Exception(f'Could not open {SECRET_FILE} for writing!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('APP_DEBUG')
+DEBUG = env('APP_DEBUG', cast=bool)
 
 
 ADMINS = [
@@ -59,12 +69,12 @@ ADMINS = [
 
 MANAGERS = ADMINS
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env('APP_ALLOWED_HOSTS', cast=Csv())
 
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,6 +87,33 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     'django.contrib.sitemaps',
 ]
+
+THIRD_APPS = [
+    #'crispy_forms',
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
+    #'rest_framework',
+    #'django_celery_beat',
+    #'django_celery_results',
+    'gunicorn',
+    'compressor',
+    #'captcha',
+    'corsheaders',
+    #'rosetta',
+]
+ 
+LIBRARY_APPS = [
+    'core',
+    'xutils',
+]
+
+SHARED_APPS = [
+    #'users',
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LIBRARY_APPS + SHARED_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -147,11 +184,11 @@ LANGUAGE_CODE = env('APP_LANGUAGE_CODE')
 
 TIME_ZONE = env('APP_TIME_ZONE')
 
-USE_I18N = env('APP_USE_I18N')
+USE_I18N = env('APP_USE_I18N', cast=bool)
 
-USE_L10N = env('APP_USE_L10N')
+USE_L10N = env('APP_USE_L10N', cast=bool)
 
-USE_TZ = env('APP_USE_TZ')
+USE_TZ = env('APP_USE_TZ', cast=bool)
 
 gettext_noop = lambda s: s
 
@@ -189,7 +226,14 @@ LOCALE_PATHS = (
 
 SITE_ID = 1
 
-PREPEND_WWW = env('APP_PREPEND_WWW')
+PREPEND_WWW = env('APP_PREPEND_WWW', cast=bool)
+
+# SECURITY
+# ------------------------------------------------------------------------------
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = "DENY"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -210,3 +254,12 @@ COMPRESS_ENABLED = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(PUBLIC_ROOT, 'media')
+
+# one email per XX seconds
+LOGLIMIT_RATE = env('APP_LOGLIMIT_RATE', cast=int)
+
+# uses keys to detect which errors are the same
+LOGLIMIT_MAX_KEYS = env('APP_LOGLIMIT_MAX_KEYS', cast=int)
+
+# uses cache if it's available
+LOGLIMIT_CACHE_PREFIX = env('APP_LOGLIMIT_CACHE_PREFIX')
