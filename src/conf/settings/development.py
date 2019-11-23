@@ -1,5 +1,7 @@
 from .base import *
 
+INSTALLED_APPS += ['core']
+
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 

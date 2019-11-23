@@ -49,11 +49,6 @@ services:
     depends_on:
       - database-1
       - cache-1
-      - rabbitmq-1
-      - memcache-1
-      - memcache-2
-      - memcache-3
-      - redis-1
     networks:
       - buildnet
       - dbnet
@@ -72,31 +67,6 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - dbnet
-  rabbitmq-1:
-    restart: always
-    image: rabbitmq:3.7-management-alpine
-    container_name: mz01
-    hostname: mz01
-    environment:
-      RABBITMQ_DEFAULT_USER: 'user'
-      RABBITMQ_DEFAULT_PASS: 'password'
-    expose:
-      - 5672
-    ports:
-      - 8081:15672
-    networks:
-      - mqnet
-  redis-1:
-    restart: always
-    image: redis:latest
-    container_name: rz01
-    hostname: rz01
-    expose:
-      - 6379
-    volumes:
-      - redisdata:/data
     networks:
       - dbnet
   nginx-1:
@@ -125,55 +95,8 @@ services:
       - web-1
     networks:
       - webnet
-  memcache-1:
-    restart: always
-    image: memcached:latest
-    container_name: cz01
-    hostname: cz01
-    expose:
-      - 11212
-    networks:
-      - dbnet
-  memcache-2:
-    restart: always
-    image: memcached:latest
-    container_name: cz02
-    hostname: cz02
-    expose:
-      - 11212
-    networks:
-      - dbnet
-  memcache-3:
-    restart: always
-    image: memcached:latest
-    container_name: cz03
-    hostname: cz03
-    expose:
-      - 11212
-    networks:
-      - dbnet
-  celery_worker:
-    <<: *python
-    container_name: cw01
-    hostname: cw01
-    #entrypoint: ["python", "manage.py", "makemigrations", "&&", "python", "manage.py", "migrate"]
-    command: celery -A conf worker --loglevel=info -Q celery
-    ports: []
-    depends_on:
-      - database-1
-      - cache-1
-      - rabbitmq-1
-      - memcache-1
-      - memcache-2
-      - memcache-3
-      - redis-1
-      - web-1
-    networks:
-      - buildnet
-      - dbnet
 volumes:
   pgdata:
-  redisdata:
   web-django:
   web-static:
   web-media:
